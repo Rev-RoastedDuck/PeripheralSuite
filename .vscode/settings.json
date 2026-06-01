@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "peripheral_suite.h": "c",
+        "buzzer_rrd.h": "c",
+        "as5600.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "peripheral_suite_common.h": "c",
+        "buzzer.h": "c"
+    }
+}

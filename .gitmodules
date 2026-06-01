@@ -1,0 +1,3 @@
+[submodule "PeripheralSuite/core/include/stdkit"]
+	path = PeripheralSuite/core/include/stdkit
+	url = https://github.com/Rev-RoastedDuck/stdkit.git
