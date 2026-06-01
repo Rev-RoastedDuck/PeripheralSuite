@@ -12,6 +12,8 @@
 #ifndef PERIPHERAL_SUITE_RRD_H_
 #define PERIPHERAL_SUITE_RRD_H_
 
+#include "src/ntc/ntc.h"
+#include "src/ina226/ina226.h"
 #include "src/buzzer/buzzer.h"
 #include "src/as5600/as5600.h"
 #include "src/ws2812/ws2812.h"
