@@ -12,3 +12,4 @@
 
 #include "src/buzzer/buzzer.c"
 #include "src/as5600/as5600.c"
+#include "src/ws2812/ws2812.c"

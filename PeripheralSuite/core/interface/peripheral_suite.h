@@ -14,5 +14,6 @@
 
 #include "src/buzzer/buzzer.h"
 #include "src/as5600/as5600.h"
+#include "src/ws2812/ws2812.h"
 
 #endif

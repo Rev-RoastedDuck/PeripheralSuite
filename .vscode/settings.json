@@ -6,6 +6,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "peripheral_suite_common.h": "c",
-        "buzzer.h": "c"
+        "buzzer.h": "c",
+        "ws2812.h": "c"
     }
 }
