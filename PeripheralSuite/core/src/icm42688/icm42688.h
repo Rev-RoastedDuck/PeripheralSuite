@@ -18,6 +18,29 @@
 #include "icm42688_reg.h"
 
 /******************************************************************************/
+/*------------------------------------Ops-------------------------------------*/
+/******************************************************************************/
+/* rrd_icm42688_ops_st
+ * ****************************************************************************
+ * name                 | args
+ * ****************************************************************************
+ * spi_read_write     	| spi_context: SPI context pointer.
+ *                     	| reg: register address.
+ *                     	| tx_data: transmit buffer (NULL for read-only).
+ *                     	| rx_data: receive buffer (NULL for write-only).
+ *                     	| len: data length.
+ * get_time_stamp_us     | context: base context pointer.
+ * ****************************************************************************
+ */
+typedef struct rrd_icm42688_ops {
+	void *spi_context;
+	void (*spi_read_write)(void *spi_context, uint8_t reg, uint8_t *tx_data, uint8_t *rx_data, uint8_t len);
+
+	void *base_context;
+	rrd_get_timestamp_size_hook_t get_time_stamp_us;
+} rrd_icm42688_ops_st;
+
+/******************************************************************************/
 /*----------------------------------Interface---------------------------------*/
 /******************************************************************************/
 typedef void (*rrd_icm42688_update_fn_t)(void *self);
@@ -29,24 +52,6 @@ typedef struct rrd_icm42688_interface {
 	rrd_icm42688_calibration_fn_t calibration;
     rrd_icm42688_get_int_status_fn_t get_int_status;
 } rrd_icm42688_interface_st;
-
-/* rrd_icm42688_ops_st
- * ****************************************************************************
- * name                 | args
- * ****************************************************************************
- * spi_read_write     	| spi_context: SPI context pointer.
- *                     	| reg: register address.
- *                     	| tx_data: transmit buffer (NULL for read-only).
- *                     	| rx_data: receive buffer (NULL for write-only).
- *                     	| len: data length.
- * delay_ms            	| ms: delay in milliseconds.
- * ****************************************************************************
- */
-typedef struct rrd_icm42688_ops {
-	void *spi_context;
-	void (*spi_read_write)(void *spi_context, uint8_t reg, uint8_t *tx_data, uint8_t *rx_data, uint8_t len);
-	void (*delay_ms)(uint32_t ms);
-} rrd_icm42688_ops_st;
 
 /******************************************************************************/
 /*--------------------------------Implementation------------------------------*/

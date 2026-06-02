@@ -90,19 +90,6 @@ typedef enum {
 } rrd_ina226_measurement_et;
 
 /******************************************************************************/
-/*----------------------------------Interface---------------------------------*/
-/******************************************************************************/
-typedef float   (*rrd_ina226_get_fn_t)(void *self, rrd_ina226_measurement_et measurement);
-typedef uint8_t (*rrd_ina226_set_calibration_fn_t)(void *self, float shunt_resistance_R, float current_max_A, float current_zero_offset_A, float bus_voltage_offset_V);
-typedef uint8_t (*rrd_ina226_set_configuration_fn_t)(void *self, rrd_ina226_average_et average, rrd_ina226_timing_et bus_voltage_ct, rrd_ina226_timing_et shunt_voltage_ct, rrd_ina226_mode_et mode);
-
-typedef struct rrd_ina226_interface {
-    rrd_ina226_get_fn_t get;
-    rrd_ina226_set_calibration_fn_t set_calibration;
-    rrd_ina226_set_configuration_fn_t set_configuration;
-} rrd_ina226_interface_st;
-
-/******************************************************************************/
 /*------------------------------------Ops-------------------------------------*/
 /******************************************************************************/
 /* rrd_ina226_ops_st
@@ -117,16 +104,30 @@ typedef struct rrd_ina226_interface {
  *                     	| reg: register address.
  *                     	| data: data buffer.
  *                     	| len: data length.
- * delay_us            	| us: delay in microseconds.
+ * get_time_stamp_us     | context: base context pointer.
  * ****************************************************************************
  */
 typedef struct rrd_ina226_ops {
     void *iic_context;
     uint8_t (*iic_read_buffer)(void *iic_context, uint8_t reg, uint8_t *data, uint8_t len);
     uint8_t (*iic_write_buffer)(void *iic_context, uint8_t reg, uint8_t *data, uint8_t len);
-    
-    void (*delay_us)(uint32_t us);
+
+    void *base_context;
+    rrd_get_timestamp_size_hook_t get_time_stamp_us;
 } rrd_ina226_ops_st;
+
+/******************************************************************************/
+/*----------------------------------Interface---------------------------------*/
+/******************************************************************************/
+typedef float   (*rrd_ina226_get_fn_t)(void *self, rrd_ina226_measurement_et measurement);
+typedef uint8_t (*rrd_ina226_set_calibration_fn_t)(void *self, float shunt_resistance_R, float current_max_A, float current_zero_offset_A, float bus_voltage_offset_V);
+typedef uint8_t (*rrd_ina226_set_configuration_fn_t)(void *self, rrd_ina226_average_et average, rrd_ina226_timing_et bus_voltage_ct, rrd_ina226_timing_et shunt_voltage_ct, rrd_ina226_mode_et mode);
+
+typedef struct rrd_ina226_interface {
+    rrd_ina226_get_fn_t get;
+    rrd_ina226_set_calibration_fn_t set_calibration;
+    rrd_ina226_set_configuration_fn_t set_configuration;
+} rrd_ina226_interface_st;
 
 /******************************************************************************/
 /*--------------------------------Implementation------------------------------*/

@@ -12,13 +12,19 @@
 /******************************************************************************/
 /*-----------------------------------Private----------------------------------*/
 /******************************************************************************/
+static inline void _rrd_ina226_delay_us(rrd_ina226_st *self, uint32_t us)
+{
+    size_t start = self->ops->get_time_stamp_us(self->ops->base_context);
+    while (self->ops->get_time_stamp_us(self->ops->base_context) - start < us);
+}
+
 /** \addtogroup iic function
  ** \{ */
 static inline uint8_t _rrd_ina226_write_2bytes(rrd_ina226_st *self, const uint8_t reg_add, const uint16_t data)
 {
 	uint8_t buf[2] = {(uint8_t)(data >> 8), (uint8_t)(data & 0xFF)};
 	uint8_t ret = self->ops->iic_write_buffer(self->ops->iic_context, reg_add, buf, 2);
-	self->ops->delay_us(50);
+	_rrd_ina226_delay_us(self, 50);
 	return ret;
 }
 
@@ -26,7 +32,7 @@ static inline uint16_t _rrd_ina226_read_2bytes(rrd_ina226_st *self, const uint8_
 {
 	uint8_t buf[2] = {0};
 	self->ops->iic_read_buffer(self->ops->iic_context, reg_add, buf, 2);
-	self->ops->delay_us(50);
+	_rrd_ina226_delay_us(self, 50);
 	return (uint16_t)((buf[0] << 8) | buf[1]);
 }
 /** \} */

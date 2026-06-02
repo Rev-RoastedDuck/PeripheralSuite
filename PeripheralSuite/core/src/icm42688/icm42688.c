@@ -28,6 +28,12 @@
 /******************************************************************************/
 /*-----------------------------------Private----------------------------------*/
 /******************************************************************************/
+static inline void _rrd_icm42688_delay_ms(rrd_icm42688_st *self, uint32_t ms)
+{
+    size_t start = self->ops->get_time_stamp_us(self->ops->base_context);
+    while (self->ops->get_time_stamp_us(self->ops->base_context) - start < (size_t)ms * 1000);
+}
+
 static inline void _rrd_icm42688_write_reg(rrd_icm42688_st *self, uint8_t reg, uint8_t data)
 {
 	self->ops->spi_read_write(self->ops->spi_context, reg, &data, NULL, 1);
@@ -107,7 +113,7 @@ void rrd_icm42688_calibration(rrd_icm42688_st *self)
     uint8_t buff = 0;
 	_rrd_icm42688_calibration_init(self);
 	while (self->calibration.cycles_remaining) {
-		self->ops->delay_ms(1);
+		_rrd_icm42688_delay_ms(self, 1);
         _rrd_icm42688_read_reg(self, RRD_ICM42688_INT_STATUS, &buff);
 		if(buff & 0x08){
             rrd_icm42688_update(self);
@@ -166,11 +172,10 @@ uint8_t rrd_icm42688_init(rrd_icm42688_st *self, rrd_icm42688_ops_st *ops)
 
 		// 关闭传感器
 		_rrd_icm42688_write_reg(self, RRD_ICM42688_PWR_MGMT0, 0x00);
-		self->ops->delay_ms(10);
-
+		_rrd_icm42688_delay_ms(self, 10);
 		// 软复位
 		_rrd_icm42688_write_reg(self, RRD_ICM42688_DEVICE_CONFIG, 0x01);
-		self->ops->delay_ms(10);
+		_rrd_icm42688_delay_ms(self, 10);
 
 		// 自检
 		_rrd_icm42688_write_reg(self, RRD_ICM42688_REG_BANK_SEL, 0x00);
