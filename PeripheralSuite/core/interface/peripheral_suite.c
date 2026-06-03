@@ -10,9 +10,9 @@
  */
 #include "peripheral_suite.h"
 
-#include "src/ntc/ntc.c"
-#include "src/ina226/ina226.c"
-#include "src/buzzer/buzzer.c"
-#include "src/as5600/as5600.c"
-#include "src/ws2812/ws2812.c"
-#include "src/icm42688/icm42688.c"
+#include "src/devices/ntc/ntc.c"
+#include "src/devices/ina226/ina226.c"
+#include "src/devices/buzzer/buzzer.c"
+#include "src/devices/as5600/as5600.c"
+#include "src/devices/ws2812/ws2812.c"
+#include "src/devices/icm42688/icm42688.c"

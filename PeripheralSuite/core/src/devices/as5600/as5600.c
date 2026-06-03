@@ -50,7 +50,6 @@ void rrd_as5600_update(rrd_as5600_st *self, uint8_t opt)
 
 void rrd_as5600_update_fx(rrd_as5600_st *self, uint8_t opt)
 {
-    rrd_as5600_update(self, opt);
     self->fx.single_turn_q16 = self->raw.single_turn_count << 4;
     self->fx.multi_turn_q16  = (self->raw.revolutions << 16) + self->fx.single_turn_q16;
 }
@@ -60,7 +59,6 @@ void rrd_as5600_update_fp(rrd_as5600_st *self, uint8_t opt)
     #define RRD_AS5600_2PI_F             (6.28318530718f)
     #define RRD_AS5600_COUNT_TO_RAD_F    (RRD_AS5600_2PI_F / RRD_AS5600_CPR)
 
-    rrd_as5600_update(self, opt);
     self->fp.multi_turn_radian  = (float)self->raw.multi_turn_count  * RRD_AS5600_COUNT_TO_RAD_F;
     self->fp.single_turn_radian = (float)self->raw.single_turn_count * RRD_AS5600_COUNT_TO_RAD_F;
     if(opt & RRD_AS5600_UPDATE_OPT_SPEED) self->fp.speed = (float)self->raw.speed * RRD_AS5600_COUNT_TO_RAD_F;
