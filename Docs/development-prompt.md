@@ -11,4 +11,4 @@
 输出的回答行文结构要紧凑，信息流要充足，可以用表格的形式呈现，不要对内容做过多的重复描述。
 
 ### 库名称规范
-我一般的库名称采用类似 ModemSuite、AlgorithmSuite、SimpleBootloader、DebugSuite 的风格。请帮我为驱动库起一个合适的名字。命名要求是：从字面上能够清晰区分各个单词，例如 EmbBSP 就不太合适，因为 b 和 B 在字形高度和宽度上接近，不便于辨识这是两个单词。
+库名称采用类似 ModemSuite、AlgorithmSuite、SimpleBootloader、DebugSuite 的风格。请帮我为驱动库起一个合适的名字。命名要求是：从字面上能够清晰区分各个单词，例如 EmbBSP 就不太合适，因为 b 和 B 在字形高度和宽度上接近，不便于辨识这是两个单词。
