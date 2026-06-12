@@ -17,6 +17,7 @@
 #include "src/devices/buzzer/buzzer.h"
 #include "src/devices/as5600/as5600.h"
 #include "src/devices/ws2812/ws2812.h"
+#include "src/devices/mt6816/mt6816.h"
 #include "src/devices/icm42688/icm42688.h"
 
 #endif

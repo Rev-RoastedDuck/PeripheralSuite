@@ -24,8 +24,14 @@
 /******************************************************************************/
 /*----------------------------------Interface---------------------------------*/
 /******************************************************************************/
+typedef struct rrd_ws2812_rgb_st {
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+} rrd_ws2812_rgb_st;
+
 typedef void (*rrd_ws2812_update_fn_t)(void *self);
-typedef void (*rrd_ws2812_set_rgb_fn_t)(void *self, size_t led_index, uint8_t r, uint8_t g, uint8_t b);
+typedef void (*rrd_ws2812_set_rgb_fn_t)(void *self, size_t led_index, rrd_ws2812_rgb_st rgb_st);
 
 typedef struct rrd_ws2812_interface {
 	rrd_ws2812_update_fn_t update;
@@ -39,14 +45,14 @@ typedef struct rrd_ws2812_interface {
  * ****************************************************************************
  * name                 | args
  * ****************************************************************************
- * set_pwm_duty       	| pwm_context: PWM context pointer.
- *                     	| data: duty cycle buffer.
+ * set_pwm_cv       	| pwm_context: PWM context pointer.
+ *                     	| count_list: counter list .
  *                     	| len: buffer length.
  * ****************************************************************************
  */
 typedef struct rrd_ws2812_ops {
 	void *pwm_context;
-	void (*set_pwm_duty)(void *pwm_context, uint16_t *data, size_t len);
+	void (*set_pwm_cv)(void *pwm_context, uint16_t *count_list, size_t len);
 } rrd_ws2812_ops_st;
 
 /******************************************************************************/
@@ -80,13 +86,13 @@ uint8_t rrd_ws2812_init(rrd_ws2812_st *self, size_t led_num, rrd_ws2812_ops_st *
 /** \addtogroup Operation
  ** \{ */
 void rrd_ws2812_update(rrd_ws2812_st *self);
-void rrd_ws2812_set_rgb(rrd_ws2812_st *self, size_t led_index, uint8_t r, uint8_t g, uint8_t b);
+void rrd_ws2812_set_rgb(rrd_ws2812_st *self, size_t led_index, rrd_ws2812_rgb_st rgb_st);
 /** \} */
 
 /******************************************************************************/
 /*-----------------------------------Debug------------------------------------*/
 /******************************************************************************/
-#define OPEN_RRD_WS2812_TEST (0)
+#define OPEN_RRD_WS2812_TEST (1)
 #if OPEN_RRD_WS2812_TEST
 void rrd_ws2812_test(rrd_ws2812_ops_st *ops, uint16_t pwm_counter_period);
 #endif

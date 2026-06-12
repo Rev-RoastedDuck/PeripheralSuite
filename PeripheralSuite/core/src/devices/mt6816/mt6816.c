@@ -24,8 +24,10 @@ static inline bool _rrd_mt6816_parity_even(uint16_t data)
 
 static inline uint16_t _rrd_mt6816_spi_read_reg(rrd_mt6816_st *self, uint8_t reg)
 {
-    uint16_t cmd = ((uint16_t)(RRD_MT6816_READ_CMD | reg)) << 8;
-    return self->ops->spi_transfer16(self->ops->spi_context, cmd);
+    uint8_t tx_buf[2] = {(uint8_t)(RRD_MT6816_READ_CMD | reg), 0x00};
+    uint8_t rx_buf[2] = {0};
+    self->ops->write_read(self->ops->spi_context, tx_buf, rx_buf, sizeof(tx_buf));
+    return ((uint16_t)rx_buf[0] << 8) | rx_buf[1];
 }
 
 static inline uint16_t _rrd_mt6816_get_raw_count(rrd_mt6816_st *self)
@@ -72,7 +74,6 @@ void rrd_mt6816_update(rrd_mt6816_st *self, uint8_t opt)
 
 void rrd_mt6816_update_fx(rrd_mt6816_st *self, uint8_t opt)
 {
-    rrd_mt6816_update(self, opt);
     self->fx.single_turn_q16 = self->raw.single_turn_count << 2;
     self->fx.multi_turn_q16  = (self->raw.revolutions << 16) + self->fx.single_turn_q16;
 }
@@ -82,7 +83,6 @@ void rrd_mt6816_update_fp(rrd_mt6816_st *self, uint8_t opt)
     #define RRD_MT6816_2PI_F             (6.28318530718f)
     #define RRD_MT6816_COUNT_TO_RAD_F    (RRD_MT6816_2PI_F / RRD_MT6816_CPR)
 
-    rrd_mt6816_update(self, opt);
     self->fp.multi_turn_radian  = (float)self->raw.multi_turn_count  * RRD_MT6816_COUNT_TO_RAD_F;
     self->fp.single_turn_radian = (float)self->raw.single_turn_count * RRD_MT6816_COUNT_TO_RAD_F;
     if (opt & RRD_MT6816_UPDATE_OPT_SPEED) self->fp.speed = (float)self->raw.speed * RRD_MT6816_COUNT_TO_RAD_F;
@@ -159,6 +159,20 @@ init_failed:
     return NULL;
 }
 
+
 /******************************************************************************/
 /*-----------------------------------Debug------------------------------------*/
 /******************************************************************************/
+#if OPEN_MT6816_TEST_RRD
+void rrd_mt6816_test(rrd_mt6816_ops_st *ops)
+{
+    rrd_mt6816_st mt6816_dev;
+    rrd_mt6816_init(&mt6816_dev, ops);
+    while (1) {
+        rrd_mt6816_update(&mt6816_dev, RRD_MT6816_UPDATE_OPT_SPEED);
+        rrd_mt6816_update_fp(&mt6816_dev, RRD_MT6816_UPDATE_OPT_SPEED);
+        printf("%0.3f, %0.3f\r\n", mt6816_dev.fp.multi_turn_radian, mt6816_dev.fp.single_turn_radian);
+        delay_1ms(2);
+    }
+}
+#endif

@@ -37,14 +37,17 @@ typedef enum {
  * ****************************************************************************
  * name                 | args
  * ****************************************************************************
- * spi_transfer16      	| spi_context: SPI context pointer.
- *                     	| tx_data: 16-bit command to send.
- *                     	| returns: 16-bit received data.
+ * spi_bus_write_read    | self: SPI bus context pointer.
+ *                     	| tx: transmit data buffer.
+ *                     	| rx: receive data buffer.
+ *                     	| len: number of bytes to transfer.
+ *                     	| returns: 0 on success.
  * ****************************************************************************
  */
+typedef int (*rrd_mt6816_write_read_fn_t)(void *self, const uint8_t *tx, uint8_t *rx, uint32_t len);
 typedef struct rrd_mt6816_ops {
     void *spi_context;
-    uint16_t (*spi_transfer16)(void *spi_context, uint16_t tx_data);
+    rrd_mt6816_write_read_fn_t write_read;
 
     void *base_context;
     rrd_get_timestamp_size_hook_t get_time_stamp_us;
@@ -111,6 +114,9 @@ void rrd_mt6816_update_fx(rrd_mt6816_st *self, uint8_t opt);
 void rrd_mt6816_update_fp(rrd_mt6816_st *self, uint8_t opt);
 /** \} */
 
+/******************************************************************************/
+/*-----------------------------------Debug------------------------------------*/
+/******************************************************************************/
 #define OPEN_MT6816_TEST_RRD (0)
 #if OPEN_MT6816_TEST_RRD
 void rrd_mt6816_test(rrd_mt6816_ops_st *ops);

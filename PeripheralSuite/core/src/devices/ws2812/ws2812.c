@@ -13,19 +13,22 @@
 /******************************************************************************/
 /*-----------------------------------Public-----------------------------------*/
 /******************************************************************************/
-void rrd_ws2812_set_rgb(rrd_ws2812_st *self, size_t led_index, uint8_t r, uint8_t g, uint8_t b)
+void rrd_ws2812_set_rgb(rrd_ws2812_st *self, size_t led_index, rrd_ws2812_rgb_st rgb_st)
 {
 	led_index = led_index * RRD_WS2812_DATA_LEN;
 
 	for (uint8_t index = 0; index < 8; index++) {
-		self->rgb_buff[led_index + index] = (g & (0x80 >> index)) ? self->config.pwm_heigh_counter
-		                                                          : self->config.pwm_low_counter;
+		self->rgb_buff[led_index + index] = (rgb_st.g & (0x80 >> index)) 
+												? self->config.pwm_heigh_counter
+		                                       	: self->config.pwm_low_counter;
 
-		self->rgb_buff[led_index + index + 8] = (r & (0x80 >> index)) ? self->config.pwm_heigh_counter
-		                                                              : self->config.pwm_low_counter;
+		self->rgb_buff[led_index + index + 8] = (rgb_st.r & (0x80 >> index)) 
+													? self->config.pwm_heigh_counter
+		                                           	: self->config.pwm_low_counter;
 
-		self->rgb_buff[led_index + index + 16] = (b & (0x80 >> index)) ? self->config.pwm_heigh_counter
-		                                                               : self->config.pwm_low_counter;
+		self->rgb_buff[led_index + index + 16] = (rgb_st.b & (0x80 >> index)) 
+													? self->config.pwm_heigh_counter
+		                                        	: self->config.pwm_low_counter;
 	}
 
 	for (size_t index = self->config.led_num * RRD_WS2812_DATA_LEN; index < self->rgb_buff_size; ++index) {
@@ -35,7 +38,7 @@ void rrd_ws2812_set_rgb(rrd_ws2812_st *self, size_t led_index, uint8_t r, uint8_
 
 void rrd_ws2812_update(rrd_ws2812_st *self)
 {
-	self->ops->set_pwm_duty(self->ops->pwm_context, self->rgb_buff, self->rgb_buff_size);
+	self->ops->set_pwm_cv(self->ops->pwm_context, self->rgb_buff, self->rgb_buff_size);
 }
 
 /******************************************************************************/
@@ -108,17 +111,84 @@ init_failed:
 /*-----------------------------------Debug------------------------------------*/
 /******************************************************************************/
 #if OPEN_RRD_WS2812_TEST
+static void _rrd_ws2812_test_rainbow(rrd_ws2812_rgb_st *led, uint8_t *hue, uint8_t speed, uint8_t brightness)
+{
+    *hue += speed;
+
+    uint8_t r, g, b;
+    uint8_t region = *hue / 43;
+
+    switch (region) {
+        case 0:
+            r = 255;
+            g = (*hue * 6) % 256;
+            b = 0;
+            break;
+        case 1:
+            r = (255 - ((*hue - 43) * 6) % 256);
+            g = 255;
+            b = 0;
+            break;
+        case 2:
+            r = 0;
+            g = 255;
+            b = ((*hue - 86) * 6) % 256;
+            break;
+        case 3:
+            r = 0;
+            g = (255 - ((*hue - 129) * 6) % 256);
+            b = 255;
+            break;
+        case 4:
+            r = ((*hue - 172) * 6) % 256;
+            g = 0;
+            b = 255;
+            break;
+        default:
+            r = 255;
+            g = 0;
+            b = (255 - ((*hue - 215) * 6) % 256);
+            break;
+    }
+
+    led->r = (r * brightness) >> 8;
+    led->g = (g * brightness) >> 8;
+    led->b = (b * brightness) >> 8;
+}
+
+void delay_1ms(uint32_t count);
 void rrd_ws2812_test(rrd_ws2812_ops_st *ops, uint16_t pwm_counter_period)
 {
-	rrd_ws2812_st *led = rrd_ws2812_new(1, ops, pwm_counter_period);
-	if (NULL == led) return;
+    rrd_ws2812_st *led = rrd_ws2812_new(1, ops, pwm_counter_period);
+    if (NULL == led) return;
 
-	led->interface->set_rgb(led, 0, 0, 0, 0);
-	led->interface->update(led);
+    // 全灭
+    led->interface->set_rgb(led, 0, (rrd_ws2812_rgb_st){0, 0, 0});
+    led->interface->update(led);
+    delay_1ms(200);
 
-	led->interface->set_rgb(led, 0, 10, 10, 10);
-	led->interface->update(led);
+    // 各色闪一次
+    led->interface->set_rgb(led, 0, (rrd_ws2812_rgb_st){50, 0, 0});
+    led->interface->update(led);
+    delay_1ms(200);
+    led->interface->set_rgb(led, 0, (rrd_ws2812_rgb_st){0, 50, 0});
+    led->interface->update(led);
+    delay_1ms(200);
+    led->interface->set_rgb(led, 0, (rrd_ws2812_rgb_st){0, 0, 50});
+    led->interface->update(led);
+    delay_1ms(200);
+    led->interface->set_rgb(led, 0, (rrd_ws2812_rgb_st){0, 0, 0});
+    led->interface->update(led);
+    delay_1ms(200);
 
-	led->del(&led);
+    // 彩虹循环效果
+    uint8_t hue = 0;
+    rrd_ws2812_rgb_st led_rgb;
+    while (1) {
+        _rrd_ws2812_test_rainbow(&led_rgb, &hue, 1, 50);
+        led->interface->set_rgb(led, 0, led_rgb);
+        led->interface->update(led);
+        delay_1ms(20);
+    }
 }
 #endif
